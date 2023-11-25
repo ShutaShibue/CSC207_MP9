@@ -16,3 +16,7 @@ bin
 
 # Annoying Mac files
 .DS_Store
+
+# others
+.vscode/
+test.java
