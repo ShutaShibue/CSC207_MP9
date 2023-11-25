@@ -34,7 +34,7 @@ public class JSONString implements JSONValue {
    * Convert to a string (e.g., for printing).
    */
   public String toString() {
-    return '"' + value + '"';
+    return value;
   } // toString()
 
   /**
