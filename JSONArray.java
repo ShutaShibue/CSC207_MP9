@@ -1,11 +1,12 @@
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * JSON arrays.
  */
-public class JSONArray {
+public class JSONArray implements JSONValue{
 
   // +--------+------------------------------------------------------
   // | Fields |
@@ -25,7 +26,7 @@ public class JSONArray {
    */
   public JSONArray() {
     this.values = new ArrayList<JSONValue>();
-  } // JSONArray() 
+  } // JSONArray()
 
   // +-------------------------+-------------------------------------
   // | Standard object methods |
@@ -35,21 +36,32 @@ public class JSONArray {
    * Convert to a string (e.g., for printing).
    */
   public String toString() {
-    return "";          // STUB
+    String ret = "[";
+    boolean first = true;
+    for (JSONValue jsonValue : values) {
+      if (first) {
+        first = false;
+      } else {
+        ret += ",";
+      }
+      ret += jsonValue;
+    }
+    ret += "]";
+    return ret;
   } // toString()
 
   /**
    * Compare to another object.
    */
   public boolean equals(Object other) {
-    return true;        // STUB
+    return this.hashCode() == other.hashCode();
   } // equals(Object)
 
   /**
    * Compute the hash code.
    */
   public int hashCode() {
-    return 0;           // STUB
+    return Objects.hashCode(values);
   } // hashCode()
 
   // +--------------------+------------------------------------------
@@ -60,7 +72,7 @@ public class JSONArray {
    * Write the value as JSON.
    */
   public void writeJSON(PrintWriter pen) {
-                        // STUB
+    // STUB
   } // writeJSON(PrintWriter)
 
   /**

@@ -1,10 +1,11 @@
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * JSON reals.
  */
-public class JSONReal {
+public class JSONReal implements JSONValue {
 
   // +--------+------------------------------------------------------
   // | Fields |
@@ -55,14 +56,14 @@ public class JSONReal {
    * Compare to another object.
    */
   public boolean equals(Object other) {
-    return true;        // STUB
+    return this.hashCode() == other.hashCode();
   } // equals(Object)
 
   /**
    * Compute the hash code.
    */
   public int hashCode() {
-    return 0;           // STUB
+    return Objects.hashCode(value);
   } // hashCode()
 
   // +--------------------+------------------------------------------
@@ -73,7 +74,7 @@ public class JSONReal {
    * Write the value as JSON.
    */
   public void writeJSON(PrintWriter pen) {
-                        // STUB
+    pen.println(toString());
   } // writeJSON(PrintWriter)
 
   /**
