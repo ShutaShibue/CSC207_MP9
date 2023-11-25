@@ -4,9 +4,9 @@ import static org.junit.Assert.assertEquals;
 public class BasicClassTests {
   @Test
   public void StringTest() {
-    JSONValue str1 = new JSONString("hello");
-    JSONValue str2 = new JSONString("hello");
-    JSONValue str3 = new JSONString("hella");
+    JSONValue str1 = new JSONString("\"hello\"");
+    JSONValue str2 = new JSONString("\"hello\"");
+    JSONValue str3 = new JSONString("\"aello\"");
 
     assertEquals(true, str1.equals(str2));
     assertEquals(false, str1.equals(str3));
