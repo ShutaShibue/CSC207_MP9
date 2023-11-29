@@ -3,8 +3,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.text.ParseException;
-import java.util.ArrayList;
-import org.junit.platform.commons.util.StringUtils;
 
 /**
  * Utilities for our simple implementation of JSON.
@@ -62,34 +60,35 @@ public class JSON {
   static JSONValue parseKernel(Reader source) throws ParseException, IOException {
     int ch;
     ch = skipWhitespace(source);
-    if (-1 == ch) {
-      throw new ParseException("Unexpected end of file", pos);
+    JSONValue result = new JSONHash();
+
+    // need fixing
+    while (ch != -1) {
+      char character = (char) ch;
+
+      if (character == '\"') {
+        StringBuilder str = new StringBuilder();
+        while ((ch = skipWhitespace(source)) != -1) {
+          character = (char) ch;
+          if (character == '\"') {
+            break;
+          }
+          str.append(character);
+        }
+        JSONString jsonString = new JSONString(str.toString());
+      } else if (character == '[') {
+        JSONArray jsonArray = new JSONArray();
+        JSONValue jsonValue;
+        while ((ch = skipWhitespace(source)) != -1) {
+          // do recursively
+        }
+        return jsonArray;
+      }
+      ch = skipWhitespace(source);
     }
+    return result;
+  }
 
-    int depth = 0; // number of { - }. when 0, end of Json stream.
-    do {
-      if(ch == '{'){
-        depth ++;
-      }
-      if(ch == '['){
-        ArrayList<String> chars = new ArrayList<String>();
-        while (true) {
-          int i = source.read();
-          if(i == ']') break;
-          chars.add(Character.toString(i));
-        }
-
-        // elements within array
-        String[] elements = String.join("", chars).split(",");
-        JSONValue arr = new JSONArray();
-        for (String elem : elements) {
-          
-        }
-      }
-      
-    } while (depth != 0);
-    throw new ParseException("Unimplemented", pos);
-  } // parseKernel
 
   /**
    * Get the next character from source, skipping over whitespace.
