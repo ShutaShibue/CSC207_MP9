@@ -40,23 +40,23 @@ public class JSONHash {
    */
   @SuppressWarnings("unchecked")
   public String toString() {
-    String ret = "";
+    String ret = "{\n";
     for (int i = 0; i < this.buckets.length; i++) {
       // if there are values in the hash bucket at this index
       if (this.buckets[i] != null) {
         ArrayList<KVPair<JSONString, JSONValue>> curList = (ArrayList<KVPair<JSONString, JSONValue>>) this.buckets[i];
         Iterator<KVPair<JSONString, JSONValue>> iterate = curList.listIterator();
-        while (iterate.hasNext()) {
+          while (iterate.hasNext()) {
           KVPair<JSONString, JSONValue> newPair = (KVPair<JSONString, JSONValue>) iterate.next();
           /* if we have a pair at this arraylist's index */
           if (newPair != null) {
-            ret += "{ " + newPair.key().toString() + ", Value: " + newPair.value().toString() + " }";
+            ret += newPair.key().toString() + ": " + newPair.value().toString() + ",\n";
           }
         }
       }
     }
-    /* Add a newline char */
-    ret += "\n";
+    /* add a closing bracket */
+    ret += "}";
     return ret;
   } // toString()
 
@@ -82,7 +82,7 @@ public class JSONHash {
    * Write the value as JSON.
    */
   public void writeJSON(PrintWriter pen) {
-    // STUB
+    pen.print(this.toString());
   } // writeJSON(PrintWriter)
 
   /**
@@ -174,13 +174,5 @@ public class JSONHash {
 
   public int find(JSONString key) {
     return Math.abs(key.hashCode()) % this.buckets.length;
-  }
-
-  public static void main(String[] args) {
-    JSONHash JSH = new JSONHash();
-    JSH.set(new JSONString("John"), new JSONString("sakoakjcba"));
-    JSH.set(new JSONString("Johanan"), new JSONString("sakoa"));
-    String s = JSH.toString();
-    System.out.printf("%s\n", s);
   }
 } // class JSONHash
