@@ -3,6 +3,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.text.ParseException;
+import java.util.ArrayList;
+import org.junit.platform.commons.util.StringUtils;
 
 /**
  * Utilities for our simple implementation of JSON.
@@ -63,7 +65,29 @@ public class JSON {
     if (-1 == ch) {
       throw new ParseException("Unexpected end of file", pos);
     }
-    // STUB
+
+    int depth = 0; // number of { - }. when 0, end of Json stream.
+    do {
+      if(ch == '{'){
+        depth ++;
+      }
+      if(ch == '['){
+        ArrayList<String> chars = new ArrayList<String>();
+        while (true) {
+          int i = source.read();
+          if(i == ']') break;
+          chars.add(Character.toString(i));
+        }
+
+        // elements within array
+        String[] elements = String.join("", chars).split(",");
+        JSONValue arr = new JSONArray();
+        for (String elem : elements) {
+          
+        }
+      }
+      
+    } while (depth != 0);
     throw new ParseException("Unimplemented", pos);
   } // parseKernel
 

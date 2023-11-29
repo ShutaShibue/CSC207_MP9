@@ -50,7 +50,9 @@ public class JSONHash {
           KVPair<JSONString, JSONValue> newPair = (KVPair<JSONString, JSONValue>) iterate.next();
           /* if we have a pair at this arraylist's index */
           if (newPair != null) {
-            ret += newPair.key().toString() + ": " + newPair.value().toString() + ",\n";
+            ret += newPair.key().toString() + ": " + newPair.value().toString();
+            if(iterate.hasNext()) ret += ",\n";
+            else ret += "\n";
           }
         }
       }
