@@ -124,6 +124,21 @@ public class JSON {
     return array;
   }
 
+  static JSONValue parseHash(Reader source) throws ParseException, IOException {
+    StringBuilder str = new StringBuilder();
+    JSONHash hash = new JSONHash();
+    char ch;
+    while ((ch = (char) skipWhitespace(source)) != '{') {
+      str.append(ch);
+    }
+    String[] keyValuePairs = str.toString().split(",");
+    for (String pair : keyValuePairs) {
+      String[] keyValue = pair.split(": ");
+      hash.set(new JSONString(keyValue[0]), parse(keyValue[1]));
+    }
+    return hash;
+  }
+
   /**
    * Get the next character from source, skipping over whitespace.
    */
