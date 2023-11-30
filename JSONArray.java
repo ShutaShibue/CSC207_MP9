@@ -72,7 +72,7 @@ public class JSONArray implements JSONValue{
    * Write the value as JSON.
    */
   public void writeJSON(PrintWriter pen) {
-    // STUB
+    pen.println(toString());
   } // writeJSON(PrintWriter)
 
   /**
