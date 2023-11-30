@@ -90,7 +90,7 @@ public class JSON {
     return result;
   }
 
-  static JSONString parseString(Reader source) throws IOException {
+  static JSONValue parseString(Reader source) throws IOException {
     char character;
     StringBuilder result = new StringBuilder();
     while ((character = (char) skipWhitespace(source)) != '\"') {
@@ -99,7 +99,18 @@ public class JSON {
     return new JSONString(result.toString());
   }
 
-  JSONValue parseArray(Reader source) throws ParseException, IOException{
+  static JSONValue parseNumber(Reader source) throws IOException {
+    int ch;
+    boolean isInt = true;
+    StringBuilder array = new StringBuilder();
+    while ((ch = (char) skipWhitespace(source)) != -1 && isNumber(ch)) {
+      array.append(ch);
+      if(ch == '.') isInt = false;
+    }
+    if(isInt) return new JSONInteger(array.toString());
+    else return new JSONReal(array.toString());
+  }
+  static JSONValue parseArray(Reader source) throws ParseException, IOException{
     StringBuilder str = new StringBuilder();
     JSONArray array = new JSONArray();
     int ch;
@@ -131,5 +142,9 @@ public class JSON {
   static boolean isWhitespace(int ch) {
     return (' ' == ch) || ('\n' == ch) || ('\r' == ch) || ('\t' == ch);
   } // isWhiteSpace(int)
+
+  static boolean isNumber(int ch){
+    return (ch - '0' >=0 && ch - '0' <= 9) || (ch == '.');
+  }
 
 } // class JSON
