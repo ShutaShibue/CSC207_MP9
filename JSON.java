@@ -102,9 +102,9 @@ public class JSON {
    */
   static JSONValue parseNumber(String source) throws IOException {
     if (source.contains("."))
-      return new JSONInteger(source);
-    else
       return new JSONReal(source);
+    else
+      return new JSONInteger(source);
   } // parseNumber
 
 
@@ -113,11 +113,11 @@ public class JSON {
    * parse Constant into JSONValue given string.
    */
   static JSONValue parseConstant(String source) throws Exception {
-    if (source == "TRUE")
+    if (source == "TRUE" || source == "true")
       return JSONConstant.TRUE;
-    if (source == "FALSE")
+    if (source == "FALSE" || source == "false")
       return JSONConstant.FALSE;
-    if (source == "NULL")
+    if (source == "NULL" || source == "null")
       return JSONConstant.NULL;
     else
       throw new Exception();
