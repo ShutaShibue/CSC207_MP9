@@ -44,13 +44,7 @@ public class JSONArray implements JSONValue{
       } else {
         ret.append(",");
       }
-      if (jsonValue instanceof JSONString) {
-        ret.append("\"");
         ret.append(jsonValue);
-        ret.append("\"");
-      } else {
-        ret.append(jsonValue);
-      }
     }
     ret.append("]");
     return ret.toString();
