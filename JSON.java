@@ -90,6 +90,15 @@ public class JSON {
     return result;
   }
 
+  static JSONString parseString(Reader source) throws IOException {
+    char character;
+    StringBuilder result = new StringBuilder();
+    while ((character = (char) skipWhitespace(source)) != '\"') {
+      result.append(character);
+    }
+    return new JSONString(result.toString());
+  }
+
   JSONValue parseArray(Reader source) throws ParseException, IOException{
     StringBuilder str = new StringBuilder();
     JSONArray array = new JSONArray();
