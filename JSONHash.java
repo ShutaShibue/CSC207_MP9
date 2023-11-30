@@ -123,8 +123,38 @@ public class JSONHash implements JSONValue {
   /**
    * Get all of the key/value pairs.
    */
+  @SuppressWarnings("unchecked")
   public Iterator<KVPair<JSONString, JSONValue>> iterator() {
-    return this.iterator(); // STUB
+    return new Iterator<KVPair<JSONString, JSONValue>>() {
+      int bIndex = 0;
+
+      public boolean hasNext() {
+        for (int i = bIndex; i < buckets.length; i++) {
+          if (buckets[i] != null) {
+            ArrayList<KVPair<JSONString, JSONValue>> curList = (ArrayList<KVPair<JSONString, JSONValue>>) buckets[i];
+            Iterator<KVPair<JSONString, JSONValue>> iterate = curList.listIterator();
+            if (iterate.hasNext()) {
+              return true;
+            }
+          }
+        }
+        return false;
+      }
+
+      public KVPair<JSONString, JSONValue> next() {
+        if (buckets[bIndex] != null) {
+          ArrayList<KVPair<JSONString, JSONValue>> curList = (ArrayList<KVPair<JSONString, JSONValue>>) buckets[bIndex];
+          Iterator<KVPair<JSONString, JSONValue>> iterate = curList.listIterator();
+          if (iterate.hasNext()) {
+            KVPair<JSONString, JSONValue> current = iterate.next();
+            return current;
+          }
+        } else {
+          bIndex++;
+        }
+        return this.next();
+      }
+    };
   } // iterator()
 
   /**
