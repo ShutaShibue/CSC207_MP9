@@ -90,17 +90,28 @@ public class JSON {
     return result;
   }
 
+  /**
+   * parse String into JSONValue given string.
+   */
   static JSONValue parseString(String source) throws IOException {
     return new JSONString(source);
-  }
+  } // parseString(String)
 
+  /**
+   * parse Number (Real, Int) into JSONValue given string.
+   */
   static JSONValue parseNumber(String source) throws IOException {
     if (source.contains("."))
       return new JSONInteger(source);
     else
       return new JSONReal(source);
-  }
+  } // parseNumber
 
+
+
+  /**
+   * parse Constant into JSONValue given string.
+   */
   static JSONValue parseConstant(String source) throws Exception {
     if (source == "TRUE")
       return JSONConstant.TRUE;
@@ -110,8 +121,11 @@ public class JSON {
       return JSONConstant.NULL;
     else
       throw new Exception();
-  }
+  } // parseConstant(String)
 
+  /**
+   * parse Array into JSONValue given string.
+   */
   static JSONValue parseArray(String source) throws ParseException, IOException {
     JSONArray array = new JSONArray();
     String[] elements = source.substring(1, source.length() - 1).split(",");
@@ -119,7 +133,7 @@ public class JSON {
       array.add(parse(string));
     }
     return array;
-  }
+  } // parseArray(String)
 
   static JSONValue parseHash(Reader source) throws ParseException, IOException {
     StringBuilder str = new StringBuilder();
