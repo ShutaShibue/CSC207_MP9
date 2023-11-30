@@ -90,54 +90,31 @@ public class JSON {
     return result;
   }
 
-  static JSONValue parseString(Reader source) throws IOException {
-    char character;
-    StringBuilder result = new StringBuilder();
-    while ((character = (char) skipWhitespace(source)) != '\"') {
-      result.append(character);
-    }
-    return new JSONString(result.toString());
+  static JSONValue parseString(String source) throws IOException {
+    return new JSONString(source);
   }
 
-  static JSONValue parseNumber(Reader source) throws IOException {
-    int ch;
-    boolean isInt = true;
-    StringBuilder array = new StringBuilder();
-    while ((ch = (char) skipWhitespace(source)) != -1 && isNumber(ch)) {
-      array.append(ch);
-      if (ch == '.')
-        isInt = false;
-    }
-    if (isInt)
-      return new JSONInteger(array.toString());
+  static JSONValue parseNumber(String source) throws IOException {
+    if (source.contains("."))
+      return new JSONInteger(source);
     else
-      return new JSONReal(array.toString());
+      return new JSONReal(source);
   }
 
-  static JSONValue parseConstant(Reader source) throws Exception {
-    StringBuilder str = new StringBuilder();
-    int ch;
-    while ((ch = skipWhitespace(source)) != ']') {
-      str.append(ch);
-    }
-    if (str.toString() == "TRUE")
+  static JSONValue parseConstant(String source) throws Exception {
+    if (source == "TRUE")
       return JSONConstant.TRUE;
-    if (str.toString() == "FALSE")
+    if (source == "FALSE")
       return JSONConstant.FALSE;
-    if (str.toString() == "NULL")
+    if (source == "NULL")
       return JSONConstant.NULL;
     else
       throw new Exception();
   }
 
-  static JSONValue parseArray(Reader source) throws ParseException, IOException {
-    StringBuilder str = new StringBuilder();
+  static JSONValue parseArray(String source) throws ParseException, IOException {
     JSONArray array = new JSONArray();
-    int ch;
-    while ((ch = skipWhitespace(source)) != ']') {
-      str.append(ch);
-    }
-    String[] elements = str.toString().split(",");
+    String[] elements = source.substring(1, source.length() - 1).split(",");
     for (String string : elements) {
       array.add(parse(string));
     }
