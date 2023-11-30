@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.text.ParseException;
+import java.util.ArrayList;
 
 /**
  * Utilities for our simple implementation of JSON.
@@ -89,6 +90,19 @@ public class JSON {
     return result;
   }
 
+  JSONValue parseArray(Reader source) throws ParseException, IOException{
+    StringBuilder str = new StringBuilder();
+    JSONArray array = new JSONArray();
+    int ch;
+    while ((ch = skipWhitespace(source)) != ']') {
+      str.append(ch);
+    }
+    String[] elements = str.toString().split(",");
+    for (String string : elements) {
+      array.add(parse(string));
+    }
+    return array;
+  }
 
   /**
    * Get the next character from source, skipping over whitespace.
@@ -103,8 +117,7 @@ public class JSON {
   } // skipWhitespace(Reader)
 
   /**
-   * Determine if a character is JSON whitespace (newline, carriage return,
-   * space, or tab).
+   * Determine if a character is JSON whitespace (newline, carriage return, space, or tab).
    */
   static boolean isWhitespace(int ch) {
     return (' ' == ch) || ('\n' == ch) || ('\r' == ch) || ('\t' == ch);
