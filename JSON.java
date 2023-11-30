@@ -105,12 +105,32 @@ public class JSON {
     StringBuilder array = new StringBuilder();
     while ((ch = (char) skipWhitespace(source)) != -1 && isNumber(ch)) {
       array.append(ch);
-      if(ch == '.') isInt = false;
+      if (ch == '.')
+        isInt = false;
     }
-    if(isInt) return new JSONInteger(array.toString());
-    else return new JSONReal(array.toString());
+    if (isInt)
+      return new JSONInteger(array.toString());
+    else
+      return new JSONReal(array.toString());
   }
-  static JSONValue parseArray(Reader source) throws ParseException, IOException{
+
+  static JSONValue parseConstant(Reader source) throws Exception {
+    StringBuilder str = new StringBuilder();
+    int ch;
+    while ((ch = skipWhitespace(source)) != ']') {
+      str.append(ch);
+    }
+    if (str.toString() == "TRUE")
+      return JSONConstant.TRUE;
+    if (str.toString() == "FALSE")
+      return JSONConstant.FALSE;
+    if (str.toString() == "NULL")
+      return JSONConstant.NULL;
+    else
+      throw new Exception();
+  }
+
+  static JSONValue parseArray(Reader source) throws ParseException, IOException {
     StringBuilder str = new StringBuilder();
     JSONArray array = new JSONArray();
     int ch;
@@ -143,8 +163,8 @@ public class JSON {
     return (' ' == ch) || ('\n' == ch) || ('\r' == ch) || ('\t' == ch);
   } // isWhiteSpace(int)
 
-  static boolean isNumber(int ch){
-    return (ch - '0' >=0 && ch - '0' <= 9) || (ch == '.');
+  static boolean isNumber(int ch) {
+    return (ch - '0' >= 0 && ch - '0' <= 9) || (ch == '.');
   }
 
 } // class JSON
