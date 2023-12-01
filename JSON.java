@@ -1,9 +1,5 @@
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
+import java.io.*;
 import java.text.ParseException;
-import java.util.ArrayList;
 
 /**
  * Utilities for our simple implementation of JSON.
@@ -25,14 +21,14 @@ public class JSON {
   /**
    * Parse a string into JSON.
    */
-  public static JSONValue parse(String source) throws ParseException, IOException {
+  public static JSONValue parse(String source) throws Exception {
     return parse(new StringReader(source));
   } // parse(String)
 
   /**
    * Parse a file into JSON.
    */
-  public static JSONValue parseFile(String filename) throws ParseException, IOException {
+  public static JSONValue parseFile(String filename) throws Exception {
     FileReader reader = new FileReader(filename);
     JSONValue result = parse(reader);
     reader.close();
@@ -42,7 +38,7 @@ public class JSON {
   /**
    * Parse JSON from a reader.
    */
-  public static JSONValue parse(Reader source) throws ParseException, IOException {
+  public static JSONValue parse(Reader source) throws Exception {
     pos = 0;
     JSONValue result = parseKernel(source);
     if (-1 != skipWhitespace(source)) {
@@ -58,96 +54,144 @@ public class JSON {
   /**
    * Parse JSON from a reader, keeping track of the current position
    */
-  static JSONValue parseKernel(Reader source) throws ParseException, IOException {
-    int ch;
-    ch = skipWhitespace(source);
-    JSONValue result = new JSONHash();
-
-    // need fixing
-    while (ch != -1) {
-      char character = (char) ch;
-
-      if (character == '\"') {
-        StringBuilder str = new StringBuilder();
-        while ((ch = skipWhitespace(source)) != -1) {
-          character = (char) ch;
-          if (character == '\"') {
-            break;
-          }
-          str.append(character);
-        }
-        JSONString jsonString = new JSONString(str.toString());
-      } else if (character == '[') {
-        JSONArray jsonArray = new JSONArray();
-        JSONValue jsonValue;
-        while ((ch = skipWhitespace(source)) != -1) {
-          // do recursively
-        }
-        return jsonArray;
-      }
-      ch = skipWhitespace(source);
+  /**
+   * Parse JSON from a reader, keeping track of the current position
+   */
+  static JSONValue parseKernel(Reader source) throws Exception {
+    int ch = skipWhitespace(source);
+    if (ch == -1) {
+      throw new ParseException("Unexpected end of file", pos);
+    }
+    JSONValue result;
+    if (ch == '\"') {
+      result = parseString(source);
+      // } else if (source.contains(".")) {
+      // return new JSONReal(source);
+    } else if (ch == '[') {
+      result = parseArray(source);
+    } else if (ch == '{') {
+      result = parseHash(source);
+    } else if (ch == 't' || ch == 'f' || ch == 'n') {
+      result = parseConstant(source, ch);
+    } else if (Character.isDigit(ch) || ch == '-') {
+      result = parseNumber(source, ch);
+    } else {
+      throw new Exception("invalid json");
     }
     return result;
   }
 
-  /**
-   * parse String into JSONValue given string.
-   */
-  static JSONValue parseString(String source) throws IOException {
-    return new JSONString(source);
-  } // parseString(String)
+  static JSONValue parseNumber(Reader source, int ch) throws Exception {
+    StringBuilder numStr = new StringBuilder();
+    boolean decimal = false;
+    numStr.append((char) ch);
+    ch = source.read();
+    while (Character.isDigit(ch) || ch == '.') {
+      if (ch == '.' && !decimal) {
+        numStr.append((char) ch);
+        decimal = true;
+      } else if (ch == '.') {
+        throw new Exception("invalid json");
+      } else {
+        numStr.append((char) ch);
+      }
+      ch = source.read();
+    }
+    // read non-digit character, need to unread it
+    if (ch == ',') {
+      pos--;
+    }
+    if (decimal) {
+      return new JSONReal(numStr.toString());
+    } else {
+      return new JSONInteger(numStr.toString());
+    }
+  }
 
-  /**
-   * parse Number (Real, Int) into JSONValue given string.
-   */
-  static JSONValue parseNumber(String source) throws IOException {
-    if (source.contains("."))
-      return new JSONReal(source);
-    else
-      return new JSONInteger(source);
-  } // parseNumber
+  static JSONString parseString(Reader source) throws IOException {
+    int character = skipWhitespace(source);
+    StringBuilder result = new StringBuilder();
+    while (character != '\"') {
+      result.append((char) character);
+      character = source.read();
+      ++pos;
+    }
+    return new JSONString(result.toString());
+  }
 
-
-
-  /**
-   * parse Constant into JSONValue given string.
-   */
-  static JSONValue parseConstant(String source) throws Exception {
-    if (source == "TRUE" || source == "true")
+  static JSONValue parseConstant(Reader source, int ch) throws Exception {
+    if (ch == 't') {
+      for (int i = 1; i < 4; i++) {
+        if (source.read() != "true".charAt(i)) {
+          throw new Exception("invalid json");
+        }
+        pos++;
+      }
       return JSONConstant.TRUE;
-    if (source == "FALSE" || source == "false")
+    }
+    if (ch == 'f') {
+      for (int i = 1; i < 5; i++) {
+        if (source.read() != "false".charAt(i)) {
+          throw new Exception("invalid json");
+        }
+        pos++;
+      }
       return JSONConstant.FALSE;
-    if (source == "NULL" || source == "null")
+    }
+    if (ch == 'n') {
+      for (int i = 1; i < 4; i++) {
+        if (source.read() != "null".charAt(i)) {
+          throw new Exception("invalid json");
+        }
+        pos++;
+      }
       return JSONConstant.NULL;
-    else
-      throw new Exception();
-  } // parseConstant(String)
+    } else
+      throw new Exception("invalid json");
+  }
 
-  /**
-   * parse Array into JSONValue given string.
-   */
-  static JSONValue parseArray(String source) throws ParseException, IOException {
-    JSONArray array = new JSONArray();
-    String[] elements = source.substring(1, source.length() - 1).split(",");
-    for (String string : elements) {
-      array.add(parse(string));
+  static JSONValue parseArray(Reader source) throws Exception {
+    JSONArray result = new JSONArray();
+    int ch;
+    while (true) {
+      JSONValue value = parseKernel(source);
+      result.add(value);
+      ch = skipWhitespace(source);
+      if (ch == ',') {
+        continue;
+      } else if (ch == ']') {
+        break;
+      } else {
+        throw new Exception("Expected ',' or ']' after value");
+      }
     }
-    return array;
-  } // parseArray(String)
+    return result;
+  }
 
-  static JSONValue parseHash(Reader source) throws ParseException, IOException {
-    StringBuilder str = new StringBuilder();
-    JSONHash hash = new JSONHash();
-    char ch;
-    while ((ch = (char) skipWhitespace(source)) != '{') {
-      str.append(ch);
+  static JSONValue parseHash(Reader source) throws Exception {
+    JSONHash result = new JSONHash();
+    int ch;
+    while (true) {
+      ch = skipWhitespace(source);
+      if (ch != '\"') {
+        throw new Exception("Expected '\"' at start of key");
+      }
+      String key = parseString(source).getValue();
+      ch = skipWhitespace(source);
+      if (ch != ':') {
+        throw new Exception("Expected ':' after key");
+      }
+      JSONValue value = parseKernel(source);
+      result.set(new JSONString(key), value);
+      ch = skipWhitespace(source);
+      if (ch == ',') {
+        continue;
+      } else if (ch == '}') {
+        return result;
+      } else {
+        throw new Exception("Expected ',' or '}' after value");
+      }
     }
-    String[] keyValuePairs = str.toString().split(",");
-    for (String pair : keyValuePairs) {
-      String[] keyValue = pair.split(": ");
-      hash.set(new JSONString(keyValue[0]), parse(keyValue[1]));
-    }
-    return hash;
   }
 
   /**
@@ -159,18 +203,16 @@ public class JSON {
       ch = source.read();
       ++pos;
     } while (isWhitespace(ch));
+    System.out.println((char) ch);
     return ch;
   } // skipWhitespace(Reader)
 
   /**
-   * Determine if a character is JSON whitespace (newline, carriage return, space, or tab).
+   * Determine if a character is JSON whitespace (newline, carriage return,
+   * space, or tab).
    */
   static boolean isWhitespace(int ch) {
     return (' ' == ch) || ('\n' == ch) || ('\r' == ch) || ('\t' == ch);
   } // isWhiteSpace(int)
-
-  static boolean isNumber(int ch) {
-    return (ch - '0' >= 0 && ch - '0' <= 9) || (ch == '.');
-  }
 
 } // class JSON
