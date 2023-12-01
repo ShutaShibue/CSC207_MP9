@@ -35,30 +35,30 @@ public class JSONHash implements JSONValue {
   // | Standard object methods |
   // +-------------------------+
 
+  String getTabs(int n) {
+    String ret = "";
+    for (int i = 0; i < n; i++) {
+      ret += "  ";
+    }
+    return ret;
+  }
+
   /**
    * Convert to a string (e.g., for printing).
    */
   @SuppressWarnings("unchecked")
   public String toString() {
-    String ret = "{\n";
-    for (int i = 0; i < this.buckets.length; i++) {
-      // if there are values in the hash bucket at this index
-      if (this.buckets[i] != null) {
-        ArrayList<KVPair<JSONString, JSONValue>> curList = (ArrayList<KVPair<JSONString, JSONValue>>) this.buckets[i];
-        Iterator<KVPair<JSONString, JSONValue>> iterate = curList.listIterator();
-          while (iterate.hasNext()) {
-          KVPair<JSONString, JSONValue> newPair = (KVPair<JSONString, JSONValue>) iterate.next();
-          /* if we have a pair at this arraylist's index */
-          if (newPair != null) {
-            ret += newPair.key().toString() + ": " + newPair.value().toString();
-            if(iterate.hasNext()) ret += ",\n";
-            else ret += "\n";
-          }
-        }
-      }
+    String ret = "{";
+
+    Iterator<KVPair<JSONString, JSONValue>> iterate = getValue();
+    while (iterate.hasNext()) {
+      KVPair<JSONString, JSONValue> newPair = (KVPair<JSONString, JSONValue>) iterate.next();
+      ret += newPair.key().toString() + ": " + newPair.value().toString();
+      if (iterate.hasNext())
+        ret += ", ";
     }
     /* add a closing bracket */
-    ret += "}";
+    ret += " }";
     return ret;
   } // toString()
 
@@ -106,7 +106,8 @@ public class JSONHash implements JSONValue {
     // find the key's index
     int keyIndex = find(key);
     if (this.buckets[keyIndex] != null) {
-      ArrayList<KVPair<JSONString, JSONValue>> curList = (ArrayList<KVPair<JSONString, JSONValue>>) this.buckets[keyIndex];
+      ArrayList<KVPair<JSONString, JSONValue>> curList =
+          (ArrayList<KVPair<JSONString, JSONValue>>) this.buckets[keyIndex];
       Iterator<KVPair<JSONString, JSONValue>> iterate = curList.listIterator();
       while (iterate.hasNext()) {
         // iterating through the ArrayList to make sure the key doesn't already exist
@@ -128,26 +129,33 @@ public class JSONHash implements JSONValue {
     return new Iterator<KVPair<JSONString, JSONValue>>() {
       int bIndex = 0;
       int aIndex = 0;
+      int aIndexCp = aIndex;
+      int bIndexCp = bIndex;
 
       public boolean hasNext() {
-        System.out.printf("current iteration, bIndex is %d, aIndex is %d\n", bIndex, aIndex);
-        if (bIndex >= buckets.length) {
+        aIndexCp = aIndex;
+        bIndexCp = bIndex;
+        return hasNextHelper();
+      }
+
+      boolean hasNextHelper() {
+        if (bIndexCp >= buckets.length) {
           return false;
         } else {
-          if (buckets[bIndex] != null) {
-            ArrayList<KVPair<JSONString, JSONValue>> curList = (ArrayList<KVPair<JSONString, JSONValue>>) buckets[bIndex];
-            if (aIndex < curList.size()) {
-              aIndex++;
+          if (buckets[bIndexCp] != null) {
+            ArrayList<KVPair<JSONString, JSONValue>> curList =
+                (ArrayList<KVPair<JSONString, JSONValue>>) buckets[bIndexCp];
+            if (aIndexCp < curList.size()) {
               return true;
             } else {
-              aIndex = 0;
-              bIndex++;
-              return hasNext();
+              aIndexCp = 0;
+              bIndexCp++;
+              return hasNextHelper();
             }
           } else {
-            aIndex = 0;
-            bIndex++;
-            return hasNext();
+            aIndexCp = 0;
+            bIndexCp++;
+            return hasNextHelper();
           }
         }
       }
@@ -157,7 +165,8 @@ public class JSONHash implements JSONValue {
           return null;
         } else {
           if (buckets[bIndex] != null) {
-            ArrayList<KVPair<JSONString, JSONValue>> curList = (ArrayList<KVPair<JSONString, JSONValue>>) buckets[bIndex];
+            ArrayList<KVPair<JSONString, JSONValue>> curList =
+                (ArrayList<KVPair<JSONString, JSONValue>>) buckets[bIndex];
             if (aIndex < curList.size()) {
               aIndex++;
               return curList.get(aIndex - 1);
@@ -184,7 +193,8 @@ public class JSONHash implements JSONValue {
   public void set(JSONString key, JSONValue value) {
     // find Key index in the Chained hash table
     int KeyInd = find(key);
-    ArrayList<KVPair<JSONString, JSONValue>> curList = (ArrayList<KVPair<JSONString, JSONValue>>) this.buckets[KeyInd];
+    ArrayList<KVPair<JSONString, JSONValue>> curList =
+        (ArrayList<KVPair<JSONString, JSONValue>>) this.buckets[KeyInd];
     if (curList == null) {
       // make a new ArrayList and add to it
       ArrayList<KVPair<JSONString, JSONValue>> newList = new ArrayList<>();
