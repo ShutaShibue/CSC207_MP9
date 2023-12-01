@@ -5,6 +5,26 @@ import java.text.ParseException;
  * Utilities for our simple implementation of JSON.
  */
 public class JSON {
+  static class CustomReader {
+    private final Reader source;
+    private boolean unread = false;
+    private int lastChar =  -1;
+    public CustomReader(Reader source) {
+      this.source = source;
+    }
+    public int read() throws IOException {
+      if (unread) {
+        unread = false;
+      } else {
+        lastChar = source.read();
+      }
+      return lastChar;
+    }
+
+    public void unread() {
+      unread = true;
+    }
+  }
   // +---------------+-----------------------------------------------
   // | Static fields |
   // +---------------+
@@ -39,9 +59,10 @@ public class JSON {
    * Parse JSON from a reader.
    */
   public static JSONValue parse(Reader source) throws Exception {
+    CustomReader customSource = new CustomReader(source);
     pos = 0;
-    JSONValue result = parseKernel(source);
-    if (-1 != skipWhitespace(source)) {
+    JSONValue result = parseKernel(customSource);
+    if (-1 != skipWhitespace(customSource)) {
       throw new ParseException("Characters remain at end", pos);
     }
     return result;
@@ -57,7 +78,7 @@ public class JSON {
   /**
    * Parse JSON from a reader, keeping track of the current position
    */
-  static JSONValue parseKernel(Reader source) throws Exception {
+  static JSONValue parseKernel(CustomReader source) throws Exception {
     int ch = skipWhitespace(source);
     if (ch == -1) {
       throw new ParseException("Unexpected end of file", pos);
@@ -79,7 +100,7 @@ public class JSON {
     return result;
   }
 
-  static JSONValue parseNumber(Reader source, int ch) throws Exception {
+  static JSONValue parseNumber(CustomReader source, int ch) throws Exception {
     StringBuilder numStr = new StringBuilder();
     boolean decimal = false;
     numStr.append((char) ch);
@@ -96,7 +117,8 @@ public class JSON {
       ch = source.read();
     }
     // read non-digit character, need to unread it
-    if (ch == ',') {
+    if (ch == ',' || ch == ']' || ch == '}') {
+      source.unread();
       pos--;
     }
     if (decimal) {
@@ -106,7 +128,7 @@ public class JSON {
     }
   }
 
-  static JSONString parseString(Reader source) throws IOException {
+  static JSONString parseString(CustomReader source) throws IOException {
     int character = skipWhitespace(source);
     StringBuilder result = new StringBuilder();
     while (character != '\"') {
@@ -117,7 +139,7 @@ public class JSON {
     return new JSONString(result.toString());
   }
 
-  static JSONValue parseConstant(Reader source, int ch) throws Exception {
+  static JSONValue parseConstant(CustomReader source, int ch) throws Exception {
     if (ch == 't') {
       for (int i = 1; i < 4; i++) {
         if (source.read() != "true".charAt(i)) {
@@ -148,7 +170,7 @@ public class JSON {
       throw new Exception("invalid json");
   }
 
-  static JSONValue parseArray(Reader source) throws Exception {
+  static JSONValue parseArray(CustomReader source) throws Exception {
     JSONArray result = new JSONArray();
     int ch;
     while (true) {
@@ -156,7 +178,6 @@ public class JSON {
       result.add(value);
       ch = skipWhitespace(source);
       if (ch == ',') {
-        continue;
       } else if (ch == ']') {
         break;
       } else {
@@ -166,7 +187,7 @@ public class JSON {
     return result;
   }
 
-  static JSONValue parseHash(Reader source) throws Exception {
+  static JSONValue parseHash(CustomReader source) throws Exception {
     JSONHash result = new JSONHash();
     int ch;
     while (true) {
@@ -183,7 +204,6 @@ public class JSON {
       result.set(new JSONString(key), value);
       ch = skipWhitespace(source);
       if (ch == ',') {
-        continue;
       } else if (ch == '}') {
         return result;
       } else {
@@ -195,7 +215,7 @@ public class JSON {
   /**
    * Get the next character from source, skipping over whitespace.
    */
-  static int skipWhitespace(Reader source) throws IOException {
+  static int skipWhitespace(CustomReader source) throws IOException {
     int ch;
     do {
       ch = source.read();
