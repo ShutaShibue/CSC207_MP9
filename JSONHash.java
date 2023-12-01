@@ -127,33 +127,53 @@ public class JSONHash implements JSONValue {
   public Iterator<KVPair<JSONString, JSONValue>> iterator() {
     return new Iterator<KVPair<JSONString, JSONValue>>() {
       int bIndex = 0;
+      int aIndex = 0;
 
       public boolean hasNext() {
-        for (int i = bIndex; i < buckets.length; i++) {
-          if (buckets[i] != null) {
-            ArrayList<KVPair<JSONString, JSONValue>> curList = (ArrayList<KVPair<JSONString, JSONValue>>) buckets[i];
-            Iterator<KVPair<JSONString, JSONValue>> iterate = curList.listIterator();
-            if (iterate.hasNext()) {
+        System.out.printf("current iteration, bIndex is %d, aIndex is %d\n", bIndex, aIndex);
+        if (bIndex >= buckets.length) {
+          return false;
+        } else {
+          if (buckets[bIndex] != null) {
+            ArrayList<KVPair<JSONString, JSONValue>> curList = (ArrayList<KVPair<JSONString, JSONValue>>) buckets[bIndex];
+            if (aIndex < curList.size()) {
+              aIndex++;
               return true;
+            } else {
+              aIndex = 0;
+              bIndex++;
+              return hasNext();
             }
+          } else {
+            aIndex = 0;
+            bIndex++;
+            return hasNext();
           }
         }
-        return false;
       }
 
       public KVPair<JSONString, JSONValue> next() {
-        if (buckets[bIndex] != null) {
-          ArrayList<KVPair<JSONString, JSONValue>> curList = (ArrayList<KVPair<JSONString, JSONValue>>) buckets[bIndex];
-          Iterator<KVPair<JSONString, JSONValue>> iterate = curList.listIterator();
-          if (iterate.hasNext()) {
-            KVPair<JSONString, JSONValue> current = iterate.next();
-            return current;
-          }
+        if (bIndex >= buckets.length) {
+          return null;
         } else {
-          bIndex++;
+          if (buckets[bIndex] != null) {
+            ArrayList<KVPair<JSONString, JSONValue>> curList = (ArrayList<KVPair<JSONString, JSONValue>>) buckets[bIndex];
+            if (aIndex < curList.size()) {
+              aIndex++;
+              return curList.get(aIndex - 1);
+            } else {
+              aIndex = 0;
+              bIndex++;
+              return next();
+            }
+          } else {
+            aIndex = 0;
+            bIndex++;
+            return next();
+          }
         }
-        return this.next();
       }
+
     };
   } // iterator()
 
