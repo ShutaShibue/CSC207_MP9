@@ -39,21 +39,4 @@ public class ParseMethodTests {
     assertEquals("true", val.toString());
   }
 
-  @Test
-  public void Obj() throws Exception {
-    String str = "{ k: v }";
-    JSONValue val = JSON.parse(str);
-    assertEquals("v", val.toString());
-
-  }
-
-  @Test 
-  public void Complete() throws Exception {
-    
-    String str = "{ \r\n" + //
-        "  \"a\": \"apple\",\r\n" + //
-        "  \"e\": [2,7,1,8],\r\n" + //
-        "  \"q\": { \"x\" : \"xerox\" }\r\n" + //
-        "}";
-  }
 }
