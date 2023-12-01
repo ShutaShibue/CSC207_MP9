@@ -65,8 +65,6 @@ public class JSON {
     JSONValue result;
     if (ch == '\"') {
       result = parseString(source);
-      // } else if (source.contains(".")) {
-      // return new JSONReal(source);
     } else if (ch == '[') {
       result = parseArray(source);
     } else if (ch == '{') {

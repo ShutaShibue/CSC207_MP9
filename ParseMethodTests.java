@@ -1,41 +1,40 @@
 import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
-import java.io.IOException;
-import java.text.ParseException;
 
 public class ParseMethodTests {
   @Test
-  public void Str() throws IOException{
+  public void Str() throws Exception {
     String str = "\"hello\"";
-    JSONValue val = JSON.parseString(str);
+    JSONValue val = JSON.parse(str);
     assertEquals("\"hello\"", val.toString());
   }
 
   @Test
-  public void Int() throws IOException{
+  public void Int() throws Exception{
     String str = "100";
-    JSONValue val = JSON.parseNumber(str);
+    JSONValue val = JSON.parse(str);
     assertEquals("100", val.toString());
   }
 
   @Test
-  public void Real() throws IOException{
+  public void Real() throws Exception{
     String str = "100.0";
-    JSONValue val = JSON.parseNumber(str);
+    JSONValue val = JSON.parse(str);
     assertEquals("100.0", val.toString());
   }
 
   @Test
-  public void Arr() throws IOException, ParseException{
-    String str = "[1,2,3,4]";
-    JSONValue val = JSON.parseArray(str);
-    assertEquals("[1,2,3,4]", val.toString());
+  public void Arr() throws Exception{
+    String str = "[\"hello\", \"hi\"]";
+    JSONValue val = JSON.parse(str);
+    assertEquals("[\"hello\",\"hi\"]", val.toString());
   }
 
   @Test
   public void Const() throws Exception {
-    String str = "TRUE";
-    JSONValue val = JSON.parseConstant(str);
+    String str = "true";
+    JSONValue val = JSON.parse(str);
     assertEquals("true", val.toString());
   }
 
