@@ -39,13 +39,13 @@ public class BasicClassTests {
   public void ArrayTest() {
     JSONArray array = new JSONArray();
 
-    array.add(new JSONString("1"));       
+    array.add(new JSONString("1"));
     array.add(new JSONInteger(2));
     array.add(new JSONInteger(3));
 
     JSONArray array2 = new JSONArray();
-    
-    array2.add(new JSONString("1"));       
+
+    array2.add(new JSONString("1"));
     array2.add(new JSONInteger(2));
     array2.add(new JSONInteger(3));
     System.out.println(array.hashCode());

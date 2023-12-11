@@ -5,7 +5,7 @@ import java.util.Objects;
 /**
  * JSON integers.
  */
-public class JSONInteger implements JSONValue{
+public class JSONInteger implements JSONValue {
 
   // +--------+------------------------------------------------------
   // | Fields |

@@ -6,7 +6,7 @@ import java.util.Objects;
 /**
  * JSON arrays.
  */
-public class JSONArray implements JSONValue{
+public class JSONArray implements JSONValue {
 
   // +--------+------------------------------------------------------
   // | Fields |
@@ -44,7 +44,7 @@ public class JSONArray implements JSONValue{
       } else {
         ret.append(",");
       }
-        ret.append(jsonValue);
+      ret.append(jsonValue);
     }
     ret.append("]");
     return ret.toString();

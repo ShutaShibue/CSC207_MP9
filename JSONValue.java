@@ -12,7 +12,7 @@ public interface JSONValue {
   /**
    * Convert to a string (e.g., for printing).
    */
-  public String toString(); 
+  public String toString();
 
   /**
    * Compare to another object.
